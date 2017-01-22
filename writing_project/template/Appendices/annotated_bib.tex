@@ -1,0 +1,43 @@
+% Appendix A
+
+\chapter{Annotated Bibliography} % Main appendix title
+
+\label{AnnoBib} % For referencing this appendix elsewhere, use \ref{AppendixA}
+
+\hangindent=0.5in Diggle, P., & Lophaven, S. (2006). Bayesian geostatistical design. {\it Board of the foundation of the Scandinavian Journal of Statistics. Vol 33 No. 1: 53-64. \url{http://www.jstor.org/stable/4616908}
+
+Specify design criteria as the minimum posterior predictive variance for both prospective and retrospective designs. Univariate response case. 
+
+\hangindent=0.5in Diggle et. al. (2003). An introduction to model-based geostatistics. In J. Moller (Ed.), {\it Spatial statistics and computational methods} (43-86). New York: Springer.
+
+Describe method for calculating posterior predictive variance in both prospective and retrospectie case.
+
+
+\hangindent=0.5in Hooten, M.B., Wikle, C.K., Sheriff, S.L., Rushin, J.W. (2009). Optimal spatio-temporal hybrid sampling designs for ecological monitoring. {\it Journal of Vegetarian Science}, 20, 639-649. \url{http://www.stat.missouri.edu/~wikle/Hootenetal2009veg.pdf}
+
+Specified method for optimal designs for dynamic spatial temporal processes. Dynamic is in the sense that the process changes over time. Compared designs for hybrid and fixed designs. Hybrid designs combine fixed sites to sample each year and random sites which vary each year. Fixed (static) sites are more convenient while dynamic sites show how the process changes over time and the ``inherent spatial autocorrelation". Criteria specified was the minumum average prediction variance. Favored sites have the most spatial variation and are least correlated with other sites (Wikle and Royle, 1999).
+
+Process:
+1) Leave out observation t and use all other observations to predict $y_{t}$. 
+
+2) Compute $Var(Y_{t} | Y_{t-1,...1})$ for all t.
+
+3) Average (2).
+
+4) Retain minimum (3).
+
+Method handles multivariate response model through $m_{t}$:
+
+\begin{center}
+${\bf Y_{t}} = {\bf K_{t}\alpha_{t}\Phi_{t}^{T}} + {\bf \epsilon_{t}\phi_{t}^{T}}$
+\end{center}
+
+${\bf Y_{t}}$ = $m_{t} X n$ multivariate response vector
+${\bf K_{t}}$ = $m_{t} X n$ maps observations to process vector
+${\bf \alpha_{t}}$ = true latent process
+${\bf \Phi_{t}}$ = matrix to transform to univariate spatial observation
+
+Criteria was using Kalman filtering. Benfits of Kalman filtering include allowing estimatation of latent process ($\{\bf \alpha}$) as well as it's uncertainty. {\it check is this similar to incorproating bayes in diggle's paper to min estimation and pred. var?}
+
+
+{\bf Kalman filter reference} \url{http://www.cs.unc.edu/~welch/kalman/}
