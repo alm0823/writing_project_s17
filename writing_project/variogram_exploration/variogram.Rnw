@@ -1,0 +1,311 @@
+\documentclass{article}
+
+\usepackage{fancyhdr} % Required for custom headers
+\usepackage{lastpage} % Required to determine the last page for the footer
+\usepackage{extramarks} % Required for headers and footers
+\usepackage{graphicx} % Required to insert images
+\usepackage{hyperref}
+\usepackage{amsmath} %for binomial pdf
+\usepackage{parskip} % so that there's space bw paragraphs
+\usepackage{float}
+\usepackage{amsfonts}
+
+% Margins
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in 
+
+\linespread{1.1} % Line spacing
+
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{STAT 534: Spatial} % Top left header
+\chead{HW 1} % Top center header
+\rhead{Andrea Mack} % Top right header
+\lfoot{01/18/2017} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{Page\ \thepage\ of\ \pageref{LastPage}} % Bottom right footer
+\renewcommand\headrulewidth{0.4pt} % Size of the header rule
+\renewcommand\footrulewidth{0.4pt} % Size of the footer rule
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+\setlength\parskip{0.5cm}
+\restylefloat{table}
+
+%----------------------------------------------------------------------------------------
+%	DOCUMENT STRUCTURE COMMANDS
+%	Skip this unless you know what you're doing
+%----------------------------------------------------------------------------------------
+
+% Header and footer for when a page split occurs within a problem environment
+\newcommand{\enterProblemHeader}[1]{
+\nobreak\extramarks{#1}{#1 continued on next page\ldots}\nobreak
+\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+}
+
+% Header and footer for when a page split occurs between problem environments
+\newcommand{\exitProblemHeader}[1]{
+\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+\nobreak\extramarks{#1}{}\nobreak
+}
+
+
+%----------------------------------------------------------------------------------------%
+
+
+
+\begin{document}
+
+<<setup, include = FALSE>>=
+require(spdep)
+require(xtable)
+require(knitr)
+opts_chunk$set(echo = FALSE, cache = FALSE, message = FALSE,
+               comment = NA, size = 'footnotesize', width = 80, dev = 'pdf',
+               dev.args = list(family = 'Palatino', pointsize = 11),
+               fig.path = 'figure/', cache.path = 'cache/',
+               fig.align = 'center', fig.height = 4, fig.width = 8,
+               show.signif.stars = FALSE)
+options(show.signif.stars = FALSE)
+
+# simulating variograms reference
+# http://www.stat.purdue.edu/~zhanghao/ASS/homework/Project%201.pdf
+
+# another source for the future
+# http://www.biostat.umn.edu/~brad/8472/slidegeoR.pdf
+
+require(geoR)
+require(MASS) #mvrnorm
+data("ca20")
+ca <- ca20
+
+@
+
+
+<<emp.var>>=
+# empirical variograms
+ca_vc <- variog(ca, coords = ca$coords, data = ca$data, estimator.type = c("classical"))
+ca_vm <- variog(ca, coords = ca$coords, data = ca$data, estimator.type = "modulus")
+par(mfrow=c(1,2))
+plot(ca_vc, main = "Classical Emprical")
+# robust against outliers (Cressie's)
+plot(ca_vm, main = "Modulus/Robust Empirical")
+
+# kenny - issue with variogram is that use many points over again
+# theoretically if outlier, showing up many times, for each pairwise distance
+# so gotway suggests weighted gls to adjust, but still problem
+
+# simulating from different correlation functions
+linear_cor <- function(t,tau2,sigma2){
+  I <- diag(1, nrow = dim(as.matrix(t))[1], ncol = dim(as.matrix(t))[2])
+  nonspat_var <- tau2*I
+  ifelse(t > 0,
+  spat_var <- sigma2*as.matrix(t), spat_var <- 0)
+  out <- nonspat_var + spat_var
+  return(out)
+}
+
+linearV <- linear_cor(t = dist(ca$data), tau2 = 9, sigma2 = 0.1)
+
+set.seed(25)
+linearZ <- mvrnorm(mu = rep(0,dim(linearV)[1]), Sigma = linearV)
+
+spherical_cor <- function(t,tau2,sigma2,phi){
+  I <- diag(1, nrow = dim(as.matrix(t))[1], ncol = 
+              dim(as.matrix(t))[2])
+  nonspat_var <- tau2*I
+spat_var <- ifelse(t<0, 0, ifelse(t >= (1/phi),
+  sigma2,sigma2*(1.5*phi*as.matrix(t) - 
+              0.5*(phi*as.matrix(t))^3)))
+spat_var <- as.matrix(spat_var)
+  out <- nonspat_var + spat_var
+  return(out)
+}
+
+gauss_cor <- function(t,tau2,sigma2,phi){
+  I <- diag(1, nrow = dim(as.matrix(t))[1], ncol = dim(as.matrix(t))[2])
+  nonspat_var <- tau2*I
+  spat_var <- ifelse(as.matrix(t) > 0,
+                     sigma2*(1-exp(-phi^2*as.matrix(t)%*%t(as.matrix(t)))),0)
+  spat_var <- as.matrix(spat_var)
+  out <- nonspat_var + spat_var
+  return(out)
+}
+
+gaussV <- gauss_cor(t = dist(ca$data), tau2 = 9, sigma2 = 0.1, phi = 2)
+
+set.seed(25)
+gaussZ <- mvrnorm(mu = rep(0,dim(gaussV)[1]), Sigma = gaussV)
+
+exp_cor <- function(t,tau2,sigma2,phi){
+  I <- diag(1, nrow = dim(as.matrix(t))[1], ncol = dim(as.matrix(t))[2])
+  nonspat_var <- as.matrix(tau2*I, nrow = dim(as.matrix(t))[1], ncol = dim(as.matrix(t))[2])
+  spat_var <- ifelse(as.matrix(t) > 0,
+                     sigma2*(1-exp(-phi*as.matrix(t))), 0)
+  spat_var <- as.matrix(spat_var)
+  out <- nonspat_var + spat_var
+  return(out)
+}
+
+
+
+expV <- exp_cor(t = dist(ca$data), tau2 = 9, sigma2 = 0.1, phi = 2)
+
+set.seed(25)
+expZ <- mvrnorm(mu = rep(0,dim(expV)[1]), Sigma = expV)
+
+@
+
+<<not.working, include = FALSE, eval = FALSE>>=
+
+spherV <- spherical_cor(t = dist(ca$data), tau2 = 9, sigma2 = 0.1, phi = 2)
+
+set.seed(25)
+spherZ <- mvrnorm(mu = rep(0,dim(spherV)[1]), Sigma = spherV)
+{\bf sphere not working}
+
+##### Matern is not yet working
+
+matern_cor <- function(t,tau2,sigma2,phi,nu){
+  I <- diag(1, nrow = dim(as.matrix(t))[1], ncol = dim(as.matrix(t))[2])
+  nonspat_var <- tau2*I
+  coeff <- ((2*sqrt(nu)*as.matrix(t)*phi)^nu)/((2^(nu-1))*factorial(nu-1))
+  bessel_idk <- besselI(2*sqrt(nu)*as.matrix(t)*phi,nu=nu)
+  
+  spat_var <- ifelse(as.matrix(t)>0,
+                     as.matrix(sigma2*(1-(coeff%*%bessel_idk)),
+                               nrow = dim(as.matrix(t))[1], ncol = dim(as.matrix(t))[2]), 
+                     as.matrix(0,nrow = dim(as.matrix(t))[1], ncol = dim(as.matrix(t))[2]))
+  spat_var <- as.matrix(spat_var)
+  out <- nonspat_var + spat_var
+  return(out)
+}
+
+maternV <- matern_cor(t = dist(ca$data), tau2 = 9, sigma2 = 0.1, phi = 2, nu = 5)
+
+set.seed(25)
+maternZ <- mvrnorm(mu = rep(0,dim(maternV)[1]), Sigma = maternV)
+@
+
+<<init.var>>=
+
+## No cov
+I <- diag(1, nrow = dim(as.matrix(dist(ca$data)))[1], ncol = dim(as.matrix(dist(ca$data)))[2])
+Z <- mvrnorm(mu = rep(0,dim(as.matrix(dist(ca$data)))[1]), Sigma = 9*I)
+
+## plot
+par(mfrow=c(1,2))
+plot(variog(data = linearZ, coords = ca$coords), main = "S2 = 0.1 Linear Cov")
+#plot(variog(data = spherZ, coords = ca$coords), main = "S2 = 0.1 Spherical Cov")
+plot(variog(data = gaussZ, coords = ca$coords), main = "S2 = 0.1 Gaussian Cov")
+plot(variog(data = expZ, coords = ca$coords), main = "S2 = 0.1 Exponential Cov")
+#plot(variog(data = maternZ, coords = ca$coords), main = "S2 = 0.1 Matern Cov")
+plot(variog(data = Z, coords = ca$coords), main = "S2 = 0 No Cov")
+
+
+# fractional sigma2, doesn't have much affect
+
+# change sigma2
+sigma2_vec <- c(0.9,1,2,8)
+
+n <- length(ca$data)
+
+linearV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+linearV[,,i] <- linear_cor(t = dist(ca$data), tau2 = 9, sigma2 = sigma2_vec[i])
+}
+
+set.seed(25)
+linearZ <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+linearZ[,,i] <- mvrnorm(mu = rep(0,dim(linearV)[1]), Sigma = linearV[,,i])
+}
+
+gaussV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  gaussV[,,i] <- gauss_cor(t = dist(ca$data), tau2 = 9, sigma2 = sigma2_vec[i], phi=2)
+}
+
+set.seed(25)
+gaussZ <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  gaussZ[,,i] <- mvrnorm(mu = rep(0,dim(gaussV)[1]), Sigma = as.matrix(gaussV[,,i]))
+}
+
+expV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  expV[,,i] <- exp_cor(t = dist(ca$data), tau2 = 9, sigma2 = sigma2_vec[i], phi=2)
+}
+
+set.seed(25)
+expZ <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  expZ[,,i] <- mvrnorm(mu = rep(0,dim(expV)[1]), Sigma = expV[,,i])
+}
+
+@
+
+<<not.working2, include = FALSE, eval = FALSE>>=
+
+spherV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  spherV[,,i] <- spher_cor(t = dist(ca$data), tau2 = 9, sigma2 = sigma2_vec[i])
+}
+
+set.seed(25)
+spherZ <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  spherZ[,,i] <- mvrnorm(mu = rep(0,dim(spherV)[1]), Sigma = spherV[,,i])
+}
+
+
+maternV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  maternV[,,i] <- linear_cor(t = dist(ca$data), tau2 = 9, sigma2 = sigma2_vec[i])
+}
+
+set.seed(25)
+maternZ <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  maternZ[,,i] <- mvrnorm(mu = rep(0,dim(maternV)[1]), Sigma = linearV[,,i])
+}
+
+
+plot(variog(data = maternZ, coords = ca$coords),  
+     main=substitute(paste("S2 =", a, "Matern Cov"), list(a=sigma2_vec[i])))
+}
+
+plot(variog(data = spherZ, coords = ca$coords),  
+     main=substitute(paste("S2 =", a, "Spherical Cov"), list(a=sigma2_vec[i])))
+
+
+@
+
+<<eval.plots, cache = TRUE>>=
+
+par(mfrow=c(1,2))
+
+for(i in 1:length(sigma2_vec)){
+plot(variog(data = linearZ[,,i], coords = ca$coords),  
+     main=substitute(paste("S2 =", a, "Linear Cov"), list(a=sigma2_vec[i])))
+}
+
+for(i in 1:length(sigma2_vec)){
+plot(variog(data = gaussZ[,,i], coords = ca$coords),  
+     main=substitute(paste("S2 =", a, "Gauss Cov"), list(a=sigma2_vec[i])))
+}
+
+for(i in 1:length(sigma2_vec)){
+plot(variog(data = expZ[,,i], coords = ca$coords),  
+     main=substitute(paste("S2 =", a, "Exp Cov"), list(a=sigma2_vec[i])))
+}
+
+@
+
+\end{document}
+
+
+
