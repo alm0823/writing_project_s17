@@ -431,6 +431,9 @@ lines.variomodel(cov.model="sph", cov.pars=c(.8,.8), nug=5,max.dist=10000, lwd=2
 # 3) how to choose parameters
 # 4) simulations -- all look the same
 # 5) idk what to do
+# 6) i feel like i don't know how to learn or understand this
+# 7) these functions are too complicated and I don't know what they are doing
+# 8) it's like a black box and i'm just trying to get something to work
 @
 
 
