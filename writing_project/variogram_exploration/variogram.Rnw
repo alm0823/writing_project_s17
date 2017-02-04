@@ -22,10 +22,10 @@
 
 % Set up the header and footer
 \pagestyle{fancy}
-\lhead{STAT 534: Spatial} % Top left header
-\chead{HW 1} % Top center header
+\lhead{Writing Project} % Top left header
+\chead{{\bf Simulating Variograms}} % Top center header
 \rhead{Andrea Mack} % Top right header
-\lfoot{01/18/2017} % Bottom left footer
+\lfoot{I love research.} % Bottom left footer
 \cfoot{} % Bottom center footer
 \rfoot{Page\ \thepage\ of\ \pageref{LastPage}} % Bottom right footer
 \renewcommand\headrulewidth{0.4pt} % Size of the header rule
@@ -58,6 +58,8 @@
 
 
 \begin{document}
+
+\section{Using {\texttt ca20} data from {\texttt geoR}}
 
 <<setup, include = FALSE>>=
 require(spdep)
@@ -190,7 +192,7 @@ set.seed(25)
 maternZ <- mvrnorm(mu = rep(0,dim(maternV)[1]), Sigma = maternV)
 @
 
-<<init.var>>=
+<<init.var, include=FALSE, eval=FALSE>>=
 
 ## No cov
 I <- diag(1, nrow = dim(as.matrix(dist(ca$data)))[1], ncol = dim(as.matrix(dist(ca$data)))[2])
@@ -284,7 +286,7 @@ plot(variog(data = spherZ, coords = ca$coords),
 
 @
 
-<<eval.plots, cache = TRUE>>=
+<<eval.plots, cache = TRUE, include=FALSE>>=
 
 par(mfrow=c(1,2))
 
@@ -304,6 +306,133 @@ plot(variog(data = expZ[,,i], coords = ca$coords),
 }
 
 @
+
+\section{Selenium Data}
+
+<<readin.se, include = FALSE>>=
+sed.full <- read.csv("SEDataForAnalysisSpSurveyFinal.csv")
+#which column has the birds' se concentrations??
+
+se.cols <- c("siteID", "xcoord", "ycoord", "mdcaty.x", "Date_", "Acres", "Hectares", 
+             "SeSed", "SeRoots", "SeWater", "SeBugs")
+
+sed <- sed.full[,se.cols]
+
+sed.geo <- as.geodata(obj = sed, coords.col = c(2,3), 
+                     data.col = c(8:11), covar.col = c(1,4,5,6,7), 
+                     na.action = "none")
+
+summary(sed.geo)
+
+dim(sed)#328 unique locations
+sed.dist <- as.matrix(dist(sed$xcoord), nrow = dim(sed)[1], ncol = dim(sed)[2])
+boxplot(dist(sed$xcoord))
+boxplot(dist(sed$ycoord))
+@
+
+<<sims.se, fig.height = 4, fig.width = 8>>=
+plot(sed.geo, na.action(sed.geo, "ignore"))
+## No cov
+I <- diag(1, nrow = dim(as.matrix(dist(sed.geo$data)))[1], ncol = dim(as.matrix(dist(sed.geo$data)))[2])
+Z.se <- mvrnorm(mu = rep(0,dim(as.matrix(dist(sed.geo$data)))[1]), Sigma = 9*I)
+
+## plot
+plot(variog(data = Z.se, coords = sed.geo$coords), main = "SE no Cov")
+#plot(variog(data = spherZ, coords = ca$coords), main = "S2 = 0.1 Spherical Cov")
+plot(variog(data = gaussZ, coords = ca$coords), main = "S2 = 0.1 Gaussian Cov")
+plot(variog(data = expZ, coords = ca$coords), main = "S2 = 0.1 Exponential Cov")
+#plot(variog(data = maternZ, coords = ca$coords), main = "S2 = 0.1 Matern Cov")
+plot(variog(data = Z, coords = ca$coords), main = "S2 = 0 No Cov")
+
+
+# fractional sigma2, doesn't have much affect
+
+# change sigma2
+sigma2_vec <- c(0,0.5,1,2,8)
+
+n <- length(sed.geo$data[,1])
+
+linearV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+linearV[,,i] <- linear_cor(t = as.matrix(dist(sed.geo$coords)), tau2 = 1.5, sigma2 = sigma2_vec[i])
+}
+
+set.seed(25)
+linearZ <- NULL
+linearZ <- array(0,c(n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+linearZ[,i] <- mvrnorm(mu = rep(0,dim(linearV)[1]), Sigma = linearV[,,i])
+}
+
+par(mfrow=c(1,2))
+for(i in 1:length(sigma2_vec)){
+plot(variog(data = linearZ[,i], coords = sed.geo$coords), type="b", main = paste("Linear Cov", "Sigma^2 =", sigma2_vec[i]))
+}
+
+
+gaussV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  gaussV[,,i] <- gauss_cor(t = dist(sed.geo$coords), tau2 = 1.5, sigma2 = sigma2_vec[i], phi=2)
+}
+
+#gaussV[1:4,1:4,2]
+
+# note: gaussian correlation matrix not positive definite when 
+# sigma2 >=1
+set.seed(25)
+gaussZ <- NULL
+gaussZ <- array(0,c(n,length(sigma2_vec)))
+for(i in 1:3){
+  gaussZ[,i] <- mvrnorm(mu = rep(0,dim(gaussV)[1]), Sigma = gaussV[,,i])
+}
+
+par(mfrow=c(1,2))
+for(i in 1:3){
+plot(variog(data = gaussZ[,i], coords = sed.geo$coords), type="b", main = paste("Gaussian Cov:", expression("Sigma^2 ="), sigma2_vec[i]))
+}
+
+expV <- array(0,c(n,n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  expV[,,i] <- exp_cor(t = dist(sed.geo$coords), tau2 = 9, sigma2 = sigma2_vec[i], phi=2)
+}
+
+set.seed(25)
+expZ <- array(0,c(n,length(sigma2_vec)))
+for(i in 1:length(sigma2_vec)){
+  expZ[,i] <- mvrnorm(mu = rep(0,dim(expV)[1]), Sigma = expV[,,i])
+}
+
+#expV[1:4,1:4,5]
+
+par(mfrow=c(1,2))
+for(i in 1:length(sigma2_vec)){
+plot(variog(data = expZ[,i], coords = sed.geo$coords), type="b", main = paste("Exp Cov:", expression("Sigma^2 ="), sigma2_vec[i]))
+}
+
+sed.miss <- which(is.na(sed.geo$data[,1]))
+
+plot(variog(data=sed.geo$data[-sed.miss,1], coords = sed.geo$coords[-sed.miss,]), type="b", main = "Observed")
+
+
+par(mfrow=c(1,1))
+plot(variog4(data=sed.geo$data[-sed.miss,1], coords = sed.geo$coords[-sed.miss,]), main = "Observed")
+
+plot(variog(data=sed.geo$data[-sed.miss,1], coords = sed.geo$coords[-sed.miss,]), main = "Observed")
+lines.variomodel(cov.model="exp", cov.pars=c(7,1000), nug=5, max.dist = 10000)
+lines.variomodel(cov.model="mat", cov.pars=c(.85,.2), nug=5, kappa=1,max.dist=10000, lty=2)
+lines.variomodel(cov.model="sph", cov.pars=c(.8,.8), nug=5,max.dist=10000, lwd=2)
+
+#persp(x=seq(0,1,length.out = dim(sed.geo$data)[1]),y=seq(0,1,length.out = dim(sed.geo$data)[1]), z=sed.geo$data[,1])
+
+
+# questions
+# 1) persp plot -- this is like the surface?
+# 2) why is it going up for farther distances
+# 3) how to choose parameters
+# 4) simulations -- all look the same
+# 5) idk what to do
+@
+
 
 \end{document}
 

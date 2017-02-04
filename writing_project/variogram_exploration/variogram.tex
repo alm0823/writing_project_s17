@@ -72,10 +72,10 @@
 
 % Set up the header and footer
 \pagestyle{fancy}
-\lhead{STAT 534: Spatial} % Top left header
-\chead{HW 1} % Top center header
+\lhead{Writing Project} % Top left header
+\chead{{\bf Simulating Variograms}} % Top center header
 \rhead{Andrea Mack} % Top right header
-\lfoot{01/18/2017} % Bottom left footer
+\lfoot{I love research.} % Bottom left footer
 \cfoot{} % Bottom center footer
 \rfoot{Page\ \thepage\ of\ \pageref{LastPage}} % Bottom right footer
 \renewcommand\headrulewidth{0.4pt} % Size of the header rule
@@ -107,6 +107,8 @@
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
+\section{Using {\texttt ca20} data from {\texttt geoR}}
+
 
 
 
@@ -128,145 +130,169 @@ variog: computing omnidirectional variogram
 
 
 
+
+
+
+
+
+
+\section{Selenium Data}
+
+
+
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-variog: computing omnidirectional variogram
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in array(x, c(length(x), 1L), if (!is.null(names(x))) list(names(x), : 'data' must be of a vector type, was 'NULL'}}\begin{verbatim}
 variog: computing omnidirectional variogram
 \end{verbatim}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/init_var-1} 
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-1} 
 
 }
 
 
 \begin{kframe}\begin{verbatim}
 variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-2} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
 variog: computing omnidirectional variogram
 \end{verbatim}
 \end{kframe}
 
-{\centering \includegraphics[width=\maxwidth]{figure/init_var-2} 
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-3} 
 
 }
 
 
 \begin{kframe}
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in mvrnorm(mu = rep(0, dim(gaussV)[1]), Sigma = as.matrix(gaussV[, : 'Sigma' is not positive definite}}
+{\ttfamily\noindent\bfseries\color{errorcolor}{Error in variog(data = Z, coords = ca\$coords): object 'Z' not found}}\begin{verbatim}
+variog: computing omnidirectional variogram
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
 
-{\ttfamily\noindent\bfseries\color{errorcolor}{Error in mvrnorm(mu = rep(0, dim(expV)[1]), Sigma = expV[, , i]): 'Sigma' is not positive definite}}\end{kframe}
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-4} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-5} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-6} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-7} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-8} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-9} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-10} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-11} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing variogram for direction = 0 degrees (0 radians)
+        tolerance angle = 22.5 degrees (0.393 radians)
+variog: computing variogram for direction = 45 degrees (0.785 radians)
+        tolerance angle = 22.5 degrees (0.393 radians)
+variog: computing variogram for direction = 90 degrees (1.571 radians)
+        tolerance angle = 22.5 degrees (0.393 radians)
+variog: computing variogram for direction = 135 degrees (2.356 radians)
+        tolerance angle = 22.5 degrees (0.393 radians)
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-12} 
+
+}
+
+
+\begin{kframe}\begin{verbatim}
+variog: computing omnidirectional variogram
+\end{verbatim}
+\end{kframe}
+
+{\centering \includegraphics[width=\maxwidth]{figure/sims_se-13} 
+
+}
+
+
+
 \end{knitrout}
 
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/eval_plots-1} 
-
-}
-
-
-\begin{kframe}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/eval_plots-2} 
-
-}
-
-
-\begin{kframe}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/eval_plots-3} 
-
-}
-
-
-\begin{kframe}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/eval_plots-4} 
-
-}
-
-
-\begin{kframe}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/eval_plots-5} 
-
-}
-
-
-\begin{kframe}\begin{verbatim}
-variog: computing omnidirectional variogram
-\end{verbatim}
-
-
-{\ttfamily\noindent\color{warningcolor}{Warning in matplot(x = c(43.7737593980042, 131.321278194011, 218.868796990019, : default 'pch' is smaller than number of columns and hence recycled}}\end{kframe}
-
-{\centering \includegraphics[width=\maxwidth]{figure/eval_plots-6} 
-
-}
-
-
-
-\end{knitrout}
 
 \end{document}
 
